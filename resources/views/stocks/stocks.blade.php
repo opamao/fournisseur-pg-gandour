@@ -1,6 +1,26 @@
 @extends('layouts.master', [
-    'title' => 'Utilisateurs',
+    'title' => 'Stocks',
 ])
+
+@push('haut')
+    <link href="{{ asset('assets/table/css') }}/dataTables.tailwindcss.css" />
+@endpush
+
+@push('bas')
+    <script src="{{ asset('assets/table/js') }}/jquery-3.7.1.js"></script>
+    <script src="{{ asset('assets/table/js') }}/dataTables.js"></script>
+    <script src="{{ asset('assets/table/js') }}/dataTables.tailwindcss.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable();
+        });
+        $('#example').DataTable({
+            dom: "<'flex justify-between items-center'<'flex items-center'l><'flex items-center'f>>" +
+                "<'mt-4'tr>" +
+                "<'flex justify-between items-center'<'p-2'i><'p-2'p>>",
+        });
+    </script>
+@endpush
 
 @section('content')
     <main class="main-content w-full px-[var(--margin-x)] pb-8">
@@ -52,19 +72,32 @@
                                                 </svg>
                                             </button>
                                         </div>
-                                        <form action="{{ route('stocks.store') }}" method="POST" role="form">
+                                        <form action="{{ route('stocks.store') }}" method="POST" role="form"
+                                            enctype="multipart/form-data">
                                             @csrf
                                             <div class="px-4 py-4 sm:px-5">
                                                 <div class="mt-4 space-y-4">
                                                     <label class="block">
+                                                        <span>Fichier</span><br>
+                                                        <small><em>Cliquez pour importer le fichier</em></small>
+                                                        <input name="fichier"
+                                                            class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
+                                                            placeholder="Veuillez sélectionner le fichier" type="file"
+                                                            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                                                    </label>
+                                                    <br>
+                                                    <hr>
+                                                    <div class="text-center"><strong>Ou</strong></div>
+                                                    <hr>
+                                                    <label class="block">
                                                         <span>Code</span>
-                                                        <input name="code" required
+                                                        <input name="code"
                                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
                                                             placeholder="Saisir le code" type="text" />
                                                     </label>
                                                     <label class="block">
                                                         <span>Quantité</span>
-                                                        <input name="quantite" required
+                                                        <input name="quantite"
                                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
                                                             placeholder="Saisir la quantité" type="number" />
                                                     </label>
@@ -86,7 +119,7 @@
                 <div>
                     <div class="mt-5">
                         <div class="is-scrollbar-hidden min-w-full overflow-x-auto">
-                            <table class="is-zebra w-full text-left">
+                            <table id="example" class="is-zebra w-full text-left">
                                 <thead>
                                     <tr>
                                         <th

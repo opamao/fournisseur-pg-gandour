@@ -2,3 +2,4 @@
 <script>
     window.addEventListener("DOMContentLoaded", () => Alpine.start());
 </script>
+@stack('bas')

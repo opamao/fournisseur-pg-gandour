@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Stocks;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StocksController extends Controller
 {
@@ -12,7 +13,7 @@ class StocksController extends Controller
      */
     public function index()
     {
-        $stocks = Stocks::all();
+        $stocks = Stocks::where('client_id', "=", Auth::user()->id)->get();
         return view('stocks.stocks', compact('stocks'));
     }
 
@@ -30,24 +31,70 @@ class StocksController extends Controller
     public function store(Request $request)
     {
         $roles = [
-            'quantite' => 'required',
-            'code' => 'required|unique:stocks,code_stock,',
+            'quantite' => 'nullable',
+            'code' => 'nullable|unique:stocks,code_stock,',
+            'fichier' => 'nullable|mimes:xlsx,xls,csv|max:2048',
         ];
         $customMessages = [
-            'quantite' => "Saisissez la quantité",
-            'code.unique' => "Le code est déjà utilisée. Veuillez essayer une autre!",
+            'fichier.mimes' => "Le fichier doit être un fichier de type : xlsx, xls, ou csv.",
+            'fichier.max' => "La taille du fichier ne doit pas dépasser 2 Mo.",
         ];
         $request->validate($roles, $customMessages);
 
-        $user = new Stocks();
-        $user->code_stock = $request->code;
-        $user->quantite_initiale = $request->quantite;
-        $user->client_id = 1;
+        // Vérifie si un fichier a été uploadé
+        if ($request->hasFile('fichier')) {
+            $file = $request->file('fichier');
 
-        if ($user->save()) {
-            return back()->with('succes',  "Vous avez ajouter " . $request->code);
+            // Utiliser Maatwebsite\Excel pour lire le fichier
+            $data = \Maatwebsite\Excel\Facades\Excel::toArray([], $file);
+
+            // Vérifie si des données sont disponibles dans le fichier
+            if (empty($data) || count($data[0]) === 0) {
+                return back()->withErrors(["Le fichier est vide ou mal formaté."]);
+            }
+
+            $rows = $data[0];
+
+            $errors = [];
+            $successCount = 0;
+
+            foreach ($rows as $index => $row) {
+                // Ignore les lignes vides ou mal formatées
+                if (empty($row[0]) || empty($row[1]) || empty($row[2])) {
+                    continue;
+                }
+
+                // Récupère les colonnes du fichier
+                $code_stock = $row[0];
+                $quantite_initiale = $row[1];
+
+                // Création du client
+                Stocks::create([
+                    'code_stock' => $code_stock,
+                    'quantite_initiale' => $quantite_initiale,
+                    'client_id' => Auth::user()->id,
+                ]);
+
+                $successCount++;
+            }
+
+            // Retourne les résultats de l'importation
+            if ($successCount > 0) {
+                return back()->with('succes',  $successCount . " clients ont été importés avec succès.");
+            }
+
+            return back()->withErrors($errors);
         } else {
-            return back()->withErrors(["Impossible d'ajouter " . $request->code . ". Veuillez réessayer!!"]);
+            $user = new Stocks();
+            $user->code_stock = $request->code;
+            $user->quantite_initiale = $request->quantite;
+            $user->client_id = Auth::user()->id;
+
+            if ($user->save()) {
+                return back()->with('succes',  "Vous avez ajouter " . $request->code);
+            } else {
+                return back()->withErrors(["Impossible d'ajouter " . $request->code . ". Veuillez réessayer!!"]);
+            }
         }
     }
 

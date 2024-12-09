@@ -51,17 +51,14 @@
                                         alt="avatar" />
                                 </div>
                                 <div>
-                                    <a href="dashboards-orders.html#"
+                                    <a href="#"
                                         class="text-base font-medium text-slate-700 hover:text-primary focus:text-primary dark:text-navy-100 dark:hover:text-accent-light dark:focus:text-accent-light">
-                                        Travis Fuller
+                                        {{ Auth::user()->name }}
                                     </a>
-                                    <p class="text-xs text-slate-400 dark:text-navy-300">
-                                        Product Designer
-                                    </p>
                                 </div>
                             </div>
                             <div class="flex flex-col pt-2 pb-5">
-                                <a href="dashboards-orders.html#"
+                                <a href="#"
                                     class="group flex items-center space-x-3 py-2 px-4 tracking-wide outline-none transition-all hover:bg-slate-100 focus:bg-slate-100 dark:hover:bg-navy-600 dark:focus:bg-navy-600">
                                     <div
                                         class="flex size-8 items-center justify-center rounded-lg bg-warning text-white">
@@ -75,14 +72,14 @@
                                     <div>
                                         <h2
                                             class="font-medium text-slate-700 transition-colors group-hover:text-primary group-focus:text-primary dark:text-navy-100 dark:group-hover:text-accent-light dark:group-focus:text-accent-light">
-                                            Profile
+                                            Profil
                                         </h2>
                                         <div class="text-xs text-slate-400 line-clamp-1 dark:text-navy-300">
                                             Your profile setting
                                         </div>
                                     </div>
                                 </a>
-                                <a href="dashboards-orders.html#"
+                                <a href="#"
                                     class="group flex items-center space-x-3 py-2 px-4 tracking-wide outline-none transition-all hover:bg-slate-100 focus:bg-slate-100 dark:hover:bg-navy-600 dark:focus:bg-navy-600">
                                     <div class="flex size-8 items-center justify-center rounded-lg bg-info text-white">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="size-4.5" fill="none"
@@ -102,7 +99,7 @@
                                         </div>
                                     </div>
                                 </a>
-                                <a href="dashboards-orders.html#"
+                                <a href="#"
                                     class="group flex items-center space-x-3 py-2 px-4 tracking-wide outline-none transition-all hover:bg-slate-100 focus:bg-slate-100 dark:hover:bg-navy-600 dark:focus:bg-navy-600">
                                     <div
                                         class="flex size-8 items-center justify-center rounded-lg bg-secondary text-white">
@@ -123,7 +120,7 @@
                                         </div>
                                     </div>
                                 </a>
-                                <a href="dashboards-orders.html#"
+                                <a href="#"
                                     class="group flex items-center space-x-3 py-2 px-4 tracking-wide outline-none transition-all hover:bg-slate-100 focus:bg-slate-100 dark:hover:bg-navy-600 dark:focus:bg-navy-600">
                                     <div class="flex size-8 items-center justify-center rounded-lg bg-error text-white">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="size-4.5" fill="none"
@@ -136,14 +133,14 @@
                                     <div>
                                         <h2
                                             class="font-medium text-slate-700 transition-colors group-hover:text-primary group-focus:text-primary dark:text-navy-100 dark:group-hover:text-accent-light dark:group-focus:text-accent-light">
-                                            Activity
+                                            Activités
                                         </h2>
                                         <div class="text-xs text-slate-400 line-clamp-1 dark:text-navy-300">
                                             Your activity and events
                                         </div>
                                     </div>
                                 </a>
-                                <a href="dashboards-orders.html#"
+                                <a href="#"
                                     class="group flex items-center space-x-3 py-2 px-4 tracking-wide outline-none transition-all hover:bg-slate-100 focus:bg-slate-100 dark:hover:bg-navy-600 dark:focus:bg-navy-600">
                                     <div
                                         class="flex size-8 items-center justify-center rounded-lg bg-success text-white">
@@ -159,7 +156,7 @@
                                     <div>
                                         <h2
                                             class="font-medium text-slate-700 transition-colors group-hover:text-primary group-focus:text-primary dark:text-navy-100 dark:group-hover:text-accent-light dark:group-focus:text-accent-light">
-                                            Settings
+                                            Paramètres
                                         </h2>
                                         <div class="text-xs text-slate-400 line-clamp-1 dark:text-navy-300">
                                             Webapp settings
@@ -167,7 +164,7 @@
                                     </div>
                                 </a>
                                 <div class="mt-3 px-4">
-                                    <button
+                                    <a href="{{ url('signout') }}"
                                         class="btn h-9 w-full space-x-2 bg-primary text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
@@ -175,7 +172,7 @@
                                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                         </svg>
                                         <span>Se déconnecter</span>
-                                    </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
