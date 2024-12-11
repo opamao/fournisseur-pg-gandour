@@ -37,7 +37,6 @@ class CustomAuthController extends Controller
             Auth::login($user);
 
             return redirect()->intended('index')->withSuccess('Bon retour');
-
         } else {
             // Les identifiants ne sont pas valides
             return back()->withInput()->withErrors(['E-mail ou mot de passe incorrect']);
@@ -46,10 +45,14 @@ class CustomAuthController extends Controller
 
     public function dashboard()
     {
-        $nbreStock = Stocks::where('client_id', '=', Auth::user()->id)->count();
-        $totalStock = Stocks::where('client_id', '=', Auth::user()->id)->sum('quantite_initiale');
+        if (Auth::check()) {
+            $nbreStock = Stocks::where('client_id', '=', Auth::user()->id)->count();
+            $totalStock = Stocks::where('client_id', '=', Auth::user()->id)->sum('quantite_initiale');
 
-        return view('dashboard.dashboard', compact('totalStock', 'nbreStock'));
+            return view('dashboard.dashboard', compact('totalStock', 'nbreStock'));
+        } else {
+            return view('auth.login');
+        }
     }
 
     public function signOut()

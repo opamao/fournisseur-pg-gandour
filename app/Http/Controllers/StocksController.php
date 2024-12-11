@@ -13,8 +13,12 @@ class StocksController extends Controller
      */
     public function index()
     {
-        $stocks = Stocks::where('client_id', "=", Auth::user()->id)->get();
-        return view('stocks.stocks', compact('stocks'));
+        if (Auth::check()) {
+            $stocks = Stocks::where('client_id', "=", Auth::user()->id)->get();
+            return view('stocks.stocks', compact('stocks'));
+        } else {
+            return view('auth.login');
+        }
     }
 
     /**
@@ -60,7 +64,7 @@ class StocksController extends Controller
 
             foreach ($rows as $index => $row) {
                 // Ignore les lignes vides ou mal formatées
-                if (empty($row[0]) || empty($row[1]) || empty($row[2])) {
+                if (empty($row[0]) || empty($row[1])) {
                     continue;
                 }
 
