@@ -62,6 +62,14 @@ class StocksController extends Controller
             $errors = [];
             $successCount = 0;
 
+            // Tableau pour suivre les codes de stock mis à jour
+            $updatedStocks = [];
+
+            // Récupérer tous les stocks existants pour ce client
+            $existingStocks = Stocks::where('client_id', Auth::user()->id)
+                ->pluck('code_stock')
+                ->toArray(); // Tableau des codes de stock existants pour ce client
+
             foreach ($rows as $index => $row) {
                 // Ignore les lignes vides ou mal formatées
                 if (empty($row[0]) || empty($row[1])) {
@@ -72,19 +80,41 @@ class StocksController extends Controller
                 $code_stock = $row[0];
                 $quantite_initiale = $row[1];
 
-                // Création du client
-                Stocks::create([
-                    'code_stock' => $code_stock,
-                    'quantite_initiale' => $quantite_initiale,
-                    'client_id' => Auth::user()->id,
-                ]);
+                // Vérifier si le stock existe déjà en base pour le client
+                $stock = Stocks::where('code_stock', $code_stock)
+                    ->where('client_id', Auth::user()->id)
+                    ->first();
+
+                // Si le stock existe, on met à jour la quantité
+                if ($stock) {
+                    $stock->update([
+                        'quantite_initiale' => $quantite_initiale,
+                    ]);
+                    $updatedStocks[] = $code_stock;  // Ajouter au tableau des stocks mis à jour
+                } else {
+                    // Si le stock n'existe pas, on crée un nouveau stock
+                    Stocks::create([
+                        'code_stock' => $code_stock,
+                        'quantite_initiale' => $quantite_initiale,
+                        'client_id' => Auth::user()->id,
+                    ]);
+                }
 
                 $successCount++;
             }
 
+            // Maintenant, mettre les stocks existants non mis à jour à 0
+            // Les stocks existants mais non mis à jour
+            $stocksToUpdateToZero = array_diff($existingStocks, $updatedStocks);
+
+            // Mettre à jour ces stocks à 0
+            Stocks::where('client_id', Auth::user()->id)
+                ->whereIn('code_stock', $stocksToUpdateToZero)
+                ->update(['quantite_initiale' => 0]);
+
             // Retourne les résultats de l'importation
             if ($successCount > 0) {
-                return back()->with('succes',  $successCount . " clients ont été importés avec succès.");
+                return back()->with('succes',  $successCount . " stocks ont été importés ou mis à jour avec succès.");
             }
 
             return back()->withErrors($errors);
