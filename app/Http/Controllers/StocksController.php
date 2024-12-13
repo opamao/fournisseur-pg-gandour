@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Articles;
 use App\Models\Stocks;
+use App\Models\StockUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -61,14 +63,16 @@ class StocksController extends Controller
 
             $errors = [];
             $successCount = 0;
-
-            // Tableau pour suivre les codes de stock mis à jour
-            $updatedStocks = [];
+            $invalidStocks = [];  // Tableau pour suivre les codes de stock invalides
+            $updatedStocks = [];  // Initialisation de la variable pour suivre les stocks mis à jour
 
             // Récupérer tous les stocks existants pour ce client
             $existingStocks = Stocks::where('client_id', Auth::user()->id)
                 ->pluck('code_stock')
                 ->toArray(); // Tableau des codes de stock existants pour ce client
+
+            // Récupérer tous les codes articles valides dans la table 'articles'
+            $validArticleCodes = Articles::pluck('code_article')->toArray();
 
             foreach ($rows as $index => $row) {
                 // Ignore les lignes vides ou mal formatées
@@ -80,6 +84,13 @@ class StocksController extends Controller
                 $code_stock = $row[0];
                 $quantite_initiale = $row[1];
 
+                // Vérifier si le code_stock existe dans les articles
+                if (!in_array($code_stock, $validArticleCodes)) {
+                    // Si le code_stock n'existe pas dans les articles, ajouter à la liste des invalides
+                    $invalidStocks[] = $code_stock;
+                    continue; // Passer à la ligne suivante si ce code_stock est invalide
+                }
+
                 // Vérifier si le stock existe déjà en base pour le client
                 $stock = Stocks::where('code_stock', $code_stock)
                     ->where('client_id', Auth::user()->id)
@@ -87,17 +98,44 @@ class StocksController extends Controller
 
                 // Si le stock existe, on met à jour la quantité
                 if ($stock) {
+                    // Sauvegarde de la quantité avant la mise à jour
+                    $quantite_avant = $stock->quantite_initiale;
+
+                    // Mise à jour du stock
                     $stock->update([
                         'quantite_initiale' => $quantite_initiale,
                     ]);
-                    $updatedStocks[] = $code_stock;  // Ajouter au tableau des stocks mis à jour
+
+                    // Enregistrement dans la table de suivi
+                    StockUpdate::create([
+                        'client_id' => Auth::user()->id,
+                        'code_stock' => $code_stock,
+                        'action' => 'updated',
+                        'quantite_avant' => $quantite_avant,
+                        'quantite_apres' => $quantite_initiale,
+                    ]);
+
+                    // Ajouter le code stock mis à jour au tableau
+                    $updatedStocks[] = $code_stock;
                 } else {
                     // Si le stock n'existe pas, on crée un nouveau stock
-                    Stocks::create([
+                    $stock = Stocks::create([
                         'code_stock' => $code_stock,
                         'quantite_initiale' => $quantite_initiale,
                         'client_id' => Auth::user()->id,
                     ]);
+
+                    // Enregistrement dans la table de suivi
+                    StockUpdate::create([
+                        'client_id' => Auth::user()->id,
+                        'code_stock' => $code_stock,
+                        'action' => 'created',
+                        'quantite_avant' => null,  // Pas de quantité avant pour la création
+                        'quantite_apres' => $quantite_initiale,
+                    ]);
+
+                    // Ajouter le code stock mis à jour au tableau
+                    $updatedStocks[] = $code_stock;
                 }
 
                 $successCount++;
@@ -114,7 +152,14 @@ class StocksController extends Controller
 
             // Retourne les résultats de l'importation
             if ($successCount > 0) {
-                return back()->with('succes',  $successCount . " stocks ont été importés ou mis à jour avec succès.");
+                $message = $successCount . " stocks ont été importés ou mis à jour avec succès.";
+
+                // Ajouter les codes invalides à la réponse si des erreurs existent
+                if (count($invalidStocks) > 0) {
+                    $message .= "<br>Les codes de stock suivants ne sont pas valides : " . implode(", ", $invalidStocks);
+                }
+
+                return back()->with('succes', $message);
             }
 
             return back()->withErrors($errors);

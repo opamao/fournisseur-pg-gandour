@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('stock_updates', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('client_id')->constrained()->onDelete('cascade');
+            $table->string('code_stock');
+            $table->string('action'); // 'created' ou 'updated'
+            $table->integer('quantite_avant')->nullable();
+            $table->integer('quantite_apres');
             $table->timestamps();
         });
     }

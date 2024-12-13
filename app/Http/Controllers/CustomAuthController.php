@@ -30,7 +30,7 @@ class CustomAuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        $user = Clients::where('code_client', $credentials['email'])->first();
+        $user = Clients::where('username', $credentials['email'])->first();
 
         if ($user && Hash::check($credentials['password'], $user->password_client)) {
             // Lorque les paramètres sont valides, garde les informations dans la session

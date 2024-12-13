@@ -10,6 +10,7 @@ class Clients extends Authenticatable
     use HasFactory;
 
     protected $fillable = [
+        'username',
         'code_client',
         'nom_client',
         'email_client',
