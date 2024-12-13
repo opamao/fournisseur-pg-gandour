@@ -42,7 +42,7 @@
                         <div x-data="{ showModal: false }">
                             <button @click="showModal = true"
                                 class="btn relative bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                Ajouter
+                                Importer
                             </button>
                             <template x-teleport="#x-teleport-target">
                                 <div class="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
@@ -61,7 +61,7 @@
                                         <div
                                             class="flex justify-between rounded-t-lg bg-slate-200 px-4 py-3 dark:bg-navy-800 sm:px-5">
                                             <h3 class="text-base font-medium text-slate-700 dark:text-navy-100">
-                                                Ajout
+                                                Importation
                                             </h3>
                                             <button @click="showModal = !showModal"
                                                 class="btn -mr-1.5 size-7 rounded-full p-0 hover:bg-slate-300/20 focus:bg-slate-300/20 active:bg-slate-300/25 dark:hover:bg-navy-300/20 dark:focus:bg-navy-300/20 dark:active:bg-navy-300/25">
@@ -85,7 +85,7 @@
                                                             placeholder="Veuillez sélectionner le fichier" type="file"
                                                             accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
                                                     </label>
-                                                    <br>
+                                                    {{-- <br>
                                                     <hr>
                                                     <div class="text-center"><strong>Ou</strong></div>
                                                     <hr>
@@ -100,11 +100,11 @@
                                                         <input name="quantite"
                                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
                                                             placeholder="Saisir la quantité" type="number" />
-                                                    </label>
+                                                    </label> --}}
                                                     <div class="space-x-2 text-right">
                                                         <button type="submit"
                                                             class="btn min-w-[7rem] rounded-full bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                                            Ajouter
+                                                            Importer
                                                         </button>
                                                     </div>
                                                 </div>
@@ -216,8 +216,8 @@
                                                                             <div class="px-4 py-4 sm:px-5">
                                                                                 <div class="mt-4 space-y-4">
                                                                                     <label class="block">
-                                                                                        <span>Code</span>
-                                                                                        <input name="code" required
+                                                                                        {{-- <span>Code</span> --}}
+                                                                                        <input name="code" required hidden
                                                                                             value="{{ $liste->code_stock }}"
                                                                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
                                                                                             placeholder="Saisir le code"

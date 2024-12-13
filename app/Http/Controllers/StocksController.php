@@ -119,16 +119,8 @@ class StocksController extends Controller
 
             return back()->withErrors($errors);
         } else {
-            $user = new Stocks();
-            $user->code_stock = $request->code;
-            $user->quantite_initiale = $request->quantite;
-            $user->client_id = Auth::user()->id;
 
-            if ($user->save()) {
-                return back()->with('succes',  "Vous avez ajouter " . $request->code);
-            } else {
-                return back()->withErrors(["Impossible d'ajouter " . $request->code . ". Veuillez réessayer!!"]);
-            }
+            return back()->withErrors(["Importer un fichier de type : xlsx, xls, ou csv dont la taille du fichier ne doit pas dépasser 2 Mo."]);
         }
     }
 

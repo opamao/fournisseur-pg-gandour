@@ -53,7 +53,7 @@
                                 <div>
                                     <a href="#"
                                         class="text-base font-medium text-slate-700 hover:text-primary focus:text-primary dark:text-navy-100 dark:hover:text-accent-light dark:focus:text-accent-light">
-                                        {{ Auth::user()->name }}
+                                        {{ Auth::user()->name_client }}
                                     </a>
                                 </div>
                             </div>

@@ -28,4 +28,24 @@ class Clients extends Authenticatable
     {
         return $this->password_client;
     }
+
+    /**
+     * Récupère le nom de l'identifiant utilisé par l'authentification.
+     *
+     * @return string
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'id'; // ou si vous utilisez un autre champ pour l'identifiant, ajustez ici
+    }
+
+    /**
+     * Récupère l'identifiant de l'utilisateur.
+     *
+     * @return mixed
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->getKey();  // Par défaut, renvoie la valeur de la colonne 'id'
+    }
 }

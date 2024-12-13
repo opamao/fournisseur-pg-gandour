@@ -19,18 +19,18 @@ class CustomAuthController extends Controller
     public function customLogin(Request $request)
     {
         $roles = [
-            'email' => 'required|email',
+            'email' => 'required',
             'password' => 'required',
         ];
         $customMessages = [
-            'email.required|email' => "Veuillez saisir votre adresse email",
+            'email.required' => "Veuillez saisir votre code",
             'password.required' => "Veuillez saisir cotre mot de passe",
         ];
         $request->validate($roles, $customMessages);
 
         $credentials = $request->only('email', 'password');
 
-        $user = Clients::where('email_client', $credentials['email'])->first();
+        $user = Clients::where('code_client', $credentials['email'])->first();
 
         if ($user && Hash::check($credentials['password'], $user->password_client)) {
             // Lorque les paramètres sont valides, garde les informations dans la session
