@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\StocksExport;
 use App\Models\Articles;
+use App\Models\Clients;
 use App\Models\Stocks;
 use App\Models\StockUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StocksController extends Controller
 {
@@ -61,35 +65,83 @@ class StocksController extends Controller
 
             $rows = $data[0];
 
-            $errors = [];
-            $successCount = 0;
-            $invalidStocks = [];  // Tableau pour suivre les codes de stock invalides
-            $updatedStocks = [];  // Initialisation de la variable pour suivre les stocks mis à jour
+            // Supprimer la première ligne (les en-têtes ou la ligne à ignorer)
+            array_shift($rows); // Cela supprime la première ligne du fichier (index 0)
 
-            // Récupérer tous les stocks existants pour ce client
-            $existingStocks = Stocks::where('client_id', Auth::user()->id)
-                ->pluck('code_stock')
-                ->toArray(); // Tableau des codes de stock existants pour ce client
+            // Initialisation des variables
+            $errors = [];
+            $invalidStocks = [];  // Tableau pour suivre les codes de stock invalides
+            $invalidQuantities = [];  // Tableau pour suivre les quantités invalides
+            $validRows = []; // Tableau pour stocker les lignes valides avant l'insertion
 
             // Récupérer tous les codes articles valides dans la table 'articles'
             $validArticleCodes = Articles::pluck('code_article')->toArray();
 
             foreach ($rows as $index => $row) {
-                // Ignore les lignes vides ou mal formatées
-                if (empty($row[0]) || empty($row[1])) {
-                    continue;
+                // Vérifie si la ligne est vide ou mal formatée
+                if (empty($row[0])) {
+                    $errors[] = "La ligne " . ($index + 2) . " a un code de stock vide.";
+                    continue; // Passer à la ligne suivante si le code de stock est vide
                 }
 
                 // Récupère les colonnes du fichier
                 $code_stock = $row[0];
-                $quantite_initiale = $row[1];
+                $quantite_initiale = $row[2];
 
                 // Vérifier si le code_stock existe dans les articles
                 if (!in_array($code_stock, $validArticleCodes)) {
-                    // Si le code_stock n'existe pas dans les articles, ajouter à la liste des invalides
-                    $invalidStocks[] = $code_stock;
+                    // Si le code_stock n'existe pas dans les articles, ajouter à la liste des erreurs
+                    $invalidStocks[] = $row;
                     continue; // Passer à la ligne suivante si ce code_stock est invalide
                 }
+
+                // Vérifier si la quantité est bien un nombre
+                if (empty($quantite_initiale)) {
+                    $quantite_initiale = 0; // Remplacer les quantités vides par 0
+                } elseif (!is_numeric($quantite_initiale)) {
+                    // Si la quantité n'est pas un nombre valide, ajouter à la liste des erreurs
+                    $invalidQuantities[] = $row;
+                    continue; // Passer à la ligne suivante si la quantité est invalide
+                }
+
+                // Ajouter la ligne valide au tableau pour insertion
+                $validRows[] = [
+                    'code_stock' => $code_stock,
+                    'quantite_initiale' => $quantite_initiale
+                ];
+            }
+
+            // Si des erreurs existent, retourner la liste des erreurs sans faire l'insertion
+            if (count($invalidStocks) > 0 || count($invalidQuantities) > 0 || count($errors) > 0) {
+                // Construction du message d'erreur
+                $errorMessage = '';
+                if (count($invalidStocks) > 0) {
+                    $errorMessage .= "Les codes de stock suivants ne sont pas valides : " . implode(", ", array_column($invalidStocks, 0)) . "<br>";
+                }
+
+                if (count($invalidQuantities) > 0) {
+                    $errorMessage .= "Les quantités suivantes ne sont pas valides (non numériques) : " . implode(", ", array_map(function ($row) {
+                        return $row[2];
+                    }, $invalidQuantities)) . "<br>";
+                }
+
+                if (count($errors) > 0) {
+                    $errorMessage .= implode("<br>", $errors);
+                }
+
+                return back()->withErrors($errorMessage);
+            }
+
+            // Si toutes les vérifications sont réussies, on procède à l'insertion ou la mise à jour des stocks
+            $existingStocks = Stocks::where('client_id', Auth::user()->id)
+                ->pluck('code_stock')
+                ->toArray(); // Tableau des codes de stock existants pour ce client
+
+            $updatedStocks = []; // Tableau pour suivre les stocks mis à jour
+
+            foreach ($validRows as $row) {
+                $code_stock = $row['code_stock'];
+                $quantite_initiale = $row['quantite_initiale'];
 
                 // Vérifier si le stock existe déjà en base pour le client
                 $stock = Stocks::where('code_stock', $code_stock)
@@ -119,7 +171,7 @@ class StocksController extends Controller
                     $updatedStocks[] = $code_stock;
                 } else {
                     // Si le stock n'existe pas, on crée un nouveau stock
-                    $stock = Stocks::create([
+                    Stocks::create([
                         'code_stock' => $code_stock,
                         'quantite_initiale' => $quantite_initiale,
                         'client_id' => Auth::user()->id,
@@ -137,12 +189,9 @@ class StocksController extends Controller
                     // Ajouter le code stock mis à jour au tableau
                     $updatedStocks[] = $code_stock;
                 }
-
-                $successCount++;
             }
 
-            // Maintenant, mettre les stocks existants non mis à jour à 0
-            // Les stocks existants mais non mis à jour
+            // Mettre les stocks existants non mis à jour à 0
             $stocksToUpdateToZero = array_diff($existingStocks, $updatedStocks);
 
             // Mettre à jour ces stocks à 0
@@ -151,18 +200,10 @@ class StocksController extends Controller
                 ->update(['quantite_initiale' => 0]);
 
             // Retourne les résultats de l'importation
-            if ($successCount > 0) {
-                $message = $successCount . " stocks ont été importés ou mis à jour avec succès.";
+            $message = count($validRows) . " stocks ont été importés ou mis à jour avec succès.";
 
-                // Ajouter les codes invalides à la réponse si des erreurs existent
-                if (count($invalidStocks) > 0) {
-                    $message .= "<br>Les codes de stock suivants ne sont pas valides : " . implode(", ", $invalidStocks);
-                }
+            return back()->with('succes', $message);
 
-                return back()->with('succes', $message);
-            }
-
-            return back()->withErrors($errors);
         } else {
 
             return back()->withErrors(["Importer un fichier de type : xlsx, xls, ou csv dont la taille du fichier ne doit pas dépasser 2 Mo."]);
@@ -222,5 +263,44 @@ class StocksController extends Controller
         Stocks::findOrFail($id)->delete();
 
         return back()->with('succes', "La suppression a été effectué");
+    }
+
+    public function editPassword(Request $request)
+    {
+        $roles = [
+            'code' => 'required',
+            'codenew' => 'required',
+            'codeconfirm' => 'required',
+        ];
+        $customMessages = [
+            'code.required' => "Veuillez saisir votre mot de passe que vous utilisez en ce moment.",
+            'codenew.required' => "Veuillez saisir votre nouveau mot de passe.",
+            'codeconfirm.required' => "Veuillez saisir a nouveau votre mot de passe.",
+        ];
+        $request->validate($roles, $customMessages);
+
+        if ($request->codenew == $request->codeconfirm) {
+
+            $user = Clients::where('username', Auth::user()->username)->first();
+
+            if ($user && Hash::check($request->codenew, $user->password_client)) {
+
+                Clients::where('id', Auth::user()->id)
+                    ->update([
+                        'password_client' => Hash::make($request->codenew),
+                    ]);
+
+                return back()->with('succes', "Votre mot de passe a été modifié.");
+            } else {
+                return back()->withErrors(["Votre mot de passe actuel n'est pas correct. Veuillez réessayer!!!"]);
+            }
+        } else {
+            return back()->withErrors(["Les nouveaux mot de passe ne correspondent pas."]);
+        }
+    }
+
+    public function exportStock()
+    {
+        return Excel::download(new StocksExport, 'stock_' . Auth::user()->username . now() . '.xlsx');
     }
 }

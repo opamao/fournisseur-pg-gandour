@@ -18,4 +18,9 @@ class Stocks extends Model
     protected $primaryKey = 'id';
 
     protected $table = 'stocks';
+
+    public function client()
+    {
+        return $this->belongsTo(Clients::class);
+    }
 }

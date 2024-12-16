@@ -40,6 +40,10 @@
                     <div x-data="usePopper({ placement: 'bottom-end', offset: 4 })" @click.outside="isShowPopper &amp;&amp; (isShowPopper = false)"
                         class="inline-flex">
                         <div x-data="{ showModal: false }">
+                            <a href="{{ url('export') }}"
+                                class="btn relative bg-secondary font-medium text-white hover:bg-secondary-focus focus:bg-secondary-focus active:bg-secondary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
+                                Exporter
+                            </a>
                             <button @click="showModal = true"
                                 class="btn relative bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
                                 Importer
@@ -217,7 +221,8 @@
                                                                                 <div class="mt-4 space-y-4">
                                                                                     <label class="block">
                                                                                         {{-- <span>Code</span> --}}
-                                                                                        <input name="code" required hidden
+                                                                                        <input name="code" required
+                                                                                            hidden
                                                                                             value="{{ $liste->code_stock }}"
                                                                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
                                                                                             placeholder="Saisir le code"

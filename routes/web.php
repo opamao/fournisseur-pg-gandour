@@ -15,5 +15,10 @@ Route::get('/', function () {
     }
     return view('auth.login');
 });
+Route::get('password', function () {
+    return view('profile.password');
+});
 
 Route::resource('stocks', StocksController::class);
+Route::post('password', [StocksController::class, 'editPassword']);
+Route::get('export', [StocksController::class, 'exportStock']);

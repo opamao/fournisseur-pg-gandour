@@ -10,13 +10,18 @@ class Articles extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nom_article',
         'code_article',
-        'cls_article',
-        'description_article',
+        'cls',
+        'designation',
     ];
 
     protected $primaryKey = 'id';
 
     protected $table = 'articles';
+
+    // Article.php (Modèle)
+    public function stock()
+    {
+        return $this->hasOne(Stocks::class, 'code_stock', 'code_article');
+    }
 }

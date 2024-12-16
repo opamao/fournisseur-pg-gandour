@@ -8,7 +8,7 @@
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
 
-    <title>Client PG - {{ $title }}</title>
+    <title>Client NPG - {{ $title }}</title>
     <link rel="icon" type="image/png" href="{{ asset('assets') }}/images/favicon.png" />
 
     <!-- CSS Assets -->
@@ -33,7 +33,7 @@
     @stack('haut')
 </head>
 
-<body x-data class="is-header-blur" x-bind="$store.global.documentBody">
+<body x-data class="is-header-blur is-sidebar-open" x-bind="$store.global.documentBody">
     <!-- App preloader-->
     <div class="app-preloader fixed z-50 grid h-full w-full place-content-center bg-slate-50 dark:bg-navy-900">
         <div class="app-preloader-inner relative inline-block size-48"></div>
