@@ -12,8 +12,13 @@ class Clients extends Authenticatable
     protected $fillable = [
         'username',
         'code_client',
-        'nom_client',
+        'precode_client',
+        'name_client',
         'email_client',
+        'logo_client',
+        'pays_id',
+        'status_client',
+        'last_sync_attempt',
         'division_id',
     ];
 

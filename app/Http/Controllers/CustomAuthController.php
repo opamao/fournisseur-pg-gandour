@@ -33,10 +33,14 @@ class CustomAuthController extends Controller
         $user = Clients::where('username', $credentials['email'])->first();
 
         if ($user && Hash::check($credentials['password'], $user->password_client)) {
-            // Lorque les paramètres sont valides, garde les informations dans la session
-            Auth::login($user);
+            if ($user->status_client == 0) {
+                return back()->withInput()->withErrors(["Votre compte n'est pas accéssible."]);
+            } else {
+                // Lorque les paramètres sont valides, garde les informations dans la session
+                Auth::login($user);
 
-            return redirect()->intended('index')->withSuccess('Bon retour');
+                return redirect()->intended('index')->withSuccess('Bon retour');
+            }
         } else {
             // Les identifiants ne sont pas valides
             return back()->withInput()->withErrors(['E-mail ou mot de passe incorrect']);
