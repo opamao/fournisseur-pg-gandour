@@ -20,7 +20,9 @@ class StocksController extends Controller
     public function index()
     {
         if (Auth::check()) {
-            $stocks = Stocks::where('client_id', "=", Auth::user()->id)->get();
+            $stocks = Stocks::where('client_id', "=", Auth::user()->id)
+                ->get();
+
             return view('stocks.stocks', compact('stocks'));
         } else {
             return view('auth.login');
@@ -41,8 +43,6 @@ class StocksController extends Controller
     public function store(Request $request)
     {
         $roles = [
-            'quantite' => 'nullable',
-            'code' => 'nullable|unique:stocks,code_stock,',
             'fichier' => 'nullable|mimes:xlsx,xls,csv|max:2048',
         ];
         $customMessages = [
@@ -91,7 +91,7 @@ class StocksController extends Controller
                 // Vérifier si le code_stock existe dans les articles
                 if (!in_array($code_stock, $validArticleCodes)) {
                     // Si le code_stock n'existe pas dans les articles, ajouter à la liste des erreurs
-                    $invalidStocks[] = $row;
+                    $invalidStocks[] = "La ligne " . ($index + 2) . " a un code de stock invalide : " . $code_stock;
                     continue; // Passer à la ligne suivante si ce code_stock est invalide
                 }
 
@@ -100,7 +100,7 @@ class StocksController extends Controller
                     $quantite_initiale = 0; // Remplacer les quantités vides par 0
                 } elseif (!is_numeric($quantite_initiale)) {
                     // Si la quantité n'est pas un nombre valide, ajouter à la liste des erreurs
-                    $invalidQuantities[] = $row;
+                    $invalidQuantities[] = "La ligne " . ($index + 2) . " a une quantité invalide : " . $quantite_initiale;
                     continue; // Passer à la ligne suivante si la quantité est invalide
                 }
 
@@ -116,20 +116,18 @@ class StocksController extends Controller
                 // Construction du message d'erreur
                 $errorMessage = '';
                 if (count($invalidStocks) > 0) {
-                    $errorMessage .= "Les codes de stock suivants ne sont pas valides : " . implode(", ", array_column($invalidStocks, 0)) . "<br>";
+                    $errorMessage .= "Les codes de stock suivants ne sont pas valides : <br>" . implode("<br>", $invalidStocks) . "<br>";
                 }
 
                 if (count($invalidQuantities) > 0) {
-                    $errorMessage .= "Les quantités suivantes ne sont pas valides (non numériques) : " . implode(", ", array_map(function ($row) {
-                        return $row[2];
-                    }, $invalidQuantities)) . "<br>";
+                    $errorMessage .= "Les quantités suivantes ne sont pas valides (non numériques) : <br>" . implode("<br>", $invalidQuantities) . "<br>";
                 }
 
                 if (count($errors) > 0) {
                     $errorMessage .= implode("<br>", $errors);
                 }
 
-                return back()->withErrors($errorMessage);
+                return response()->json(['errors' => $errorMessage], 422);
             }
 
             // Si toutes les vérifications sont réussies, on procède à l'insertion ou la mise à jour des stocks
@@ -202,11 +200,9 @@ class StocksController extends Controller
             // Retourne les résultats de l'importation
             $message = count($validRows) . " stocks ont été importés ou mis à jour avec succès.";
 
-            return back()->with('succes', $message);
-
+            return response()->json(['success' => $message]);
         } else {
-
-            return back()->withErrors(["Importer un fichier de type : xlsx, xls, ou csv dont la taille du fichier ne doit pas dépasser 2 Mo."]);
+            return response()->json(['errors' => "Importer un fichier de type : xlsx, xls, ou csv dont la taille du fichier ne doit pas dépasser 2 Mo."], 422);
         }
     }
 
@@ -260,9 +256,9 @@ class StocksController extends Controller
      */
     public function destroy(string $id)
     {
-        Stocks::findOrFail($id)->delete();
+        Stocks::findOrFail($id)->update(['quantite_initiale' => 0]);
 
-        return back()->with('succes', "La suppression a été effectué");
+        return back()->with('succes', "Le stock a été remis zéro");
     }
 
     public function editPassword(Request $request)

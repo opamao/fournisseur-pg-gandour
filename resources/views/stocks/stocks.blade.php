@@ -20,6 +20,62 @@
                 "<'flex justify-between items-center'<'p-2'i><'p-2'p>>",
         });
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#formCreate').on('submit', function(e) {
+                e.preventDefault(); // Empêche l'envoi normal du formulaire
+
+                // Réinitialiser les messages d'erreur
+                $('.text-danger').text('');
+                $('#loadingButton').hide(); // Cacher le bouton
+                $('#loadingMessage').show(); // Afficher le message "Veuillez patienter"
+
+                // Créer un objet FormData pour gérer le fichier et les autres champs
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    processData: false, // Ne pas traiter les données
+                    contentType: false, // Ne pas définir de type de contenu (important pour l'envoi de fichiers)
+                    success: function(response) {
+                        // Masquer le message de chargement
+                        $('#loadingMessage').hide();
+                        $('#loadingButton').show();
+
+                        // Si succès, afficher un message de succès
+                        alert(response.success);
+                        $('#formCreate')[0].reset(); // Réinitialiser le formulaire
+                        location.reload(); // Rafraîchit la page
+                    },
+                    error: function(xhr) {
+                        // Masquer le message de chargement
+                        $('#loadingMessage').hide();
+                        $('#loadingButton').show();
+
+                        // Si une erreur de validation se produit, afficher les erreurs dans les éléments correspondants
+                        var errors = xhr.responseJSON.errors;
+
+                        // Si les erreurs sont sous forme de texte global (non un tableau d'erreurs pour chaque champ)
+                        if (typeof errors === 'string') {
+                            // Afficher les erreurs globales dans un élément dédié (par exemple, "error-global")
+                            $('#error-global').text(errors); // Affichage d'une erreur globale
+                        }
+
+                        if (errors) {
+                            for (var field in errors) {
+                                // Si un champ de formulaire a une erreur, on affiche l'erreur dans l'élément correspondant
+                                $('#' + 'error-' + field).text(errors[
+                                    field]); // Utilise l'ID de l'élément pour afficher l'erreur
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 @endpush
 
 @section('content')
@@ -76,18 +132,20 @@
                                                 </svg>
                                             </button>
                                         </div>
-                                        <form action="{{ route('stocks.store') }}" method="POST" role="form"
-                                            enctype="multipart/form-data">
+                                        <form id="formCreate" action="{{ route('stocks.store') }}" method="POST"
+                                            role="form" enctype="multipart/form-data">
                                             @csrf
                                             <div class="px-4 py-4 sm:px-5">
                                                 <div class="mt-4 space-y-4">
                                                     <label class="block">
                                                         <span>Fichier</span><br>
                                                         <small><em>Cliquez pour importer le fichier</em></small>
-                                                        <input name="fichier"
+                                                        <input name="fichier" id="fichier" required
                                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
                                                             placeholder="Veuillez sélectionner le fichier" type="file"
                                                             accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                                                        <div id="error-global" style="color: red;"></div>
+                                                        <span style="color: red;" id="error-fichier"></span>
                                                     </label>
                                                     {{-- <br>
                                                     <hr>
@@ -106,10 +164,16 @@
                                                             placeholder="Saisir la quantité" type="number" />
                                                     </label> --}}
                                                     <div class="space-x-2 text-right">
-                                                        <button type="submit"
-                                                            class="btn min-w-[7rem] rounded-full bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                                            Importer
-                                                        </button>
+                                                        <div id="loadingMessage" style="display: none;">
+                                                            <p style="color: #018ea9">Veuillez patienter, le fichier est en
+                                                                traitement...</p>
+                                                        </div>
+                                                        <div id="loadingButton">
+                                                            <button type="submit"
+                                                                class="btn min-w-[7rem] rounded-full bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
+                                                                Importer
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -280,7 +344,7 @@
                                                                             class="flex justify-between rounded-t-lg bg-slate-200 px-4 py-3 dark:bg-navy-800 sm:px-5">
                                                                             <h3
                                                                                 class="text-base font-medium text-slate-700 dark:text-navy-100">
-                                                                                Suppression
+                                                                                Mettre a zéro
                                                                             </h3>
                                                                             <button
                                                                                 @click="showModalDelete{{ $liste->id }} = !showModalDelete{{ $liste->id }}"
@@ -304,12 +368,12 @@
                                                                             <div class="px-4 py-4 sm:px-5">
                                                                                 <div class="mt-4 space-y-4">
                                                                                     <label class="block">
-                                                                                        Êtes-vous sûre de vouloir supprimer?
+                                                                                        Vous allez mettre votre stock a zéro
                                                                                     </label>
                                                                                     <div class="space-x-2 text-right">
                                                                                         <button type="submit"
                                                                                             class="btn min-w-[7rem] rounded-full bg-error font-medium text-white hover:bg-error-focus focus:bg-error-focus active:bg-error-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                                                                            Supprimer
+                                                                                            Soumettre
                                                                                         </button>
                                                                                     </div>
                                                                                 </div>
