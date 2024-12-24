@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CustomAuthController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\StocksController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,3 +23,5 @@ Route::get('password', function () {
 Route::resource('stocks', StocksController::class);
 Route::post('password', [StocksController::class, 'editPassword']);
 Route::get('export', [StocksController::class, 'exportStock']);
+
+Route::post('language-switch', [LanguageController::class, 'languageSwitch'])->name('language.switch');

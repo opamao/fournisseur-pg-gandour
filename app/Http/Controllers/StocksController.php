@@ -46,8 +46,8 @@ class StocksController extends Controller
             'fichier' => 'nullable|mimes:xlsx,xls,csv|max:2048',
         ];
         $customMessages = [
-            'fichier.mimes' => "Le fichier doit être un fichier de type : xlsx, xls, ou csv.",
-            'fichier.max' => "La taille du fichier ne doit pas dépasser 2 Mo.",
+            'fichier.mimes' => __("messages.fileMine"),
+            'fichier.max' => __("messages.fileMax"),
         ];
         $request->validate($roles, $customMessages);
 
@@ -60,7 +60,7 @@ class StocksController extends Controller
 
             // Vérifie si des données sont disponibles dans le fichier
             if (empty($data) || count($data[0]) === 0) {
-                return back()->withErrors(["Le fichier est vide ou mal formaté."]);
+                return back()->withErrors([__("messages.fileEmpty")]);
             }
 
             $rows = $data[0];
@@ -80,7 +80,7 @@ class StocksController extends Controller
             foreach ($rows as $index => $row) {
                 // Vérifie si la ligne est vide ou mal formatée
                 if (empty($row[0])) {
-                    $errors[] = "La ligne " . ($index + 2) . " a un code de stock vide.";
+                    $errors[] = __("messages.theline") . ($index + 2) . __("messages.stockVide");
                     continue; // Passer à la ligne suivante si le code de stock est vide
                 }
 
@@ -91,7 +91,8 @@ class StocksController extends Controller
                 // Vérifier si le code_stock existe dans les articles
                 if (!in_array($code_stock, $validArticleCodes)) {
                     // Si le code_stock n'existe pas dans les articles, ajouter à la liste des erreurs
-                    $invalidStocks[] = "La ligne " . ($index + 2) . " a un code de stock invalide : " . $code_stock;
+                    // $invalidStocks[] = "La ligne " . ($index + 2) . " a un code de stock invalide : " . $code_stock;
+                    $invalidStocks[] = __("messages.theline") . ($index + 2) . __("messages.StockInv");
                     continue; // Passer à la ligne suivante si ce code_stock est invalide
                 }
 
@@ -100,8 +101,13 @@ class StocksController extends Controller
                     $quantite_initiale = 0; // Remplacer les quantités vides par 0
                 } elseif (!is_numeric($quantite_initiale)) {
                     // Si la quantité n'est pas un nombre valide, ajouter à la liste des erreurs
-                    $invalidQuantities[] = "La ligne " . ($index + 2) . " a une quantité invalide : " . $quantite_initiale;
+                    $invalidQuantities[] = __("messages.theline") . ($index + 2) . __("messages.qteInv");
+                    // $invalidQuantities[] = "La ligne " . ($index + 2) . " a une quantité invalide : " . $quantite_initiale;
                     continue; // Passer à la ligne suivante si la quantité est invalide
+                } elseif ($quantite_initiale < 0) {
+                    // Vérifier si la quantité est négative
+                    $invalidQuantities[] = __("messages.theline") . ($index + 2) . __("messages.qteNeg");
+                    continue; // Passer à la ligne suivante si la quantité est négative
                 }
 
                 // Ajouter la ligne valide au tableau pour insertion
@@ -116,11 +122,13 @@ class StocksController extends Controller
                 // Construction du message d'erreur
                 $errorMessage = '';
                 if (count($invalidStocks) > 0) {
-                    $errorMessage .= "Les codes de stock suivants ne sont pas valides : <br>" . implode("<br>", $invalidStocks) . "<br>";
+                    $errorMessage .= implode("<br>", $invalidStocks) . "<br>";
+                    // $errorMessage .= "Les codes de stock suivants ne sont pas valides : <br>" . implode("<br>", $invalidStocks) . "<br>";
                 }
 
                 if (count($invalidQuantities) > 0) {
-                    $errorMessage .= "Les quantités suivantes ne sont pas valides (non numériques) : <br>" . implode("<br>", $invalidQuantities) . "<br>";
+                    $errorMessage .= implode("<br>", $invalidQuantities) . "<br>";
+                    // $errorMessage .= "Les quantités suivantes ne sont pas valides (non numériques) : <br>" . implode("<br>", $invalidQuantities) . "<br>";
                 }
 
                 if (count($errors) > 0) {
@@ -198,11 +206,11 @@ class StocksController extends Controller
                 ->update(['quantite_initiale' => 0]);
 
             // Retourne les résultats de l'importation
-            $message = count($validRows) . " stocks ont été importés ou mis à jour avec succès.";
+            $message = count($validRows) . " stocks" . __("messages.fileImport");
 
             return response()->json(['success' => $message]);
         } else {
-            return response()->json(['errors' => "Importer un fichier de type : xlsx, xls, ou csv dont la taille du fichier ne doit pas dépasser 2 Mo."], 422);
+            return response()->json(['errors' => __("messages.fileImportEx")], 422);
         }
     }
 
@@ -234,8 +242,8 @@ class StocksController extends Controller
             'code' => 'required|unique:stocks,code_stock,' . $user->id,
         ];
         $customMessages = [
-            'quantite' => "Saisissez son nom",
-            'code.unique' => "Le code est déjà utilisé. Veuillez essayer un autre!",
+            'quantite' => __("messages.enterquantite"),
+            'code.unique' => __("messages.enterCodeUse"),
         ];
         $request->validate($roles, $customMessages);
 
@@ -245,9 +253,9 @@ class StocksController extends Controller
         }
 
         if ($user->save()) {
-            return back()->with('succes', "Les informations de " . $request->code . " ont été mises à jour avec succès.");
+            return back()->with('succes', __("messages.update"));
         } else {
-            return back()->withErrors(["Impossible de mettre à jour les informations de " . $request->code . ". Veuillez réessayer!"]);
+            return back()->withErrors([__("messages.impossible")]);
         }
     }
 
@@ -258,7 +266,7 @@ class StocksController extends Controller
     {
         Stocks::findOrFail($id)->update(['quantite_initiale' => 0]);
 
-        return back()->with('succes', "Le stock a été remis zéro");
+        return back()->with('succes', __("messages.stockzero"));
     }
 
     public function editPassword(Request $request)
@@ -269,9 +277,9 @@ class StocksController extends Controller
             'codeconfirm' => 'required',
         ];
         $customMessages = [
-            'code.required' => "Veuillez saisir votre mot de passe que vous utilisez en ce moment.",
-            'codenew.required' => "Veuillez saisir votre nouveau mot de passe.",
-            'codeconfirm.required' => "Veuillez saisir a nouveau votre mot de passe.",
+            'code.required' => __("messages.passwordActuel"),
+            'codenew.required' => __("messages.codenew"),
+            'codeconfirm.required' => __("messages.codeconfirm"),
         ];
         $request->validate($roles, $customMessages);
 
@@ -286,12 +294,12 @@ class StocksController extends Controller
                         'password_client' => Hash::make($request->codenew),
                     ]);
 
-                return back()->with('succes', "Votre mot de passe a été modifié.");
+                return back()->with('succes', __("messages.updatePassword"));
             } else {
-                return back()->withErrors(["Votre mot de passe actuel n'est pas correct. Veuillez réessayer!!!"]);
+                return back()->withErrors([__("messages.updateActuel")]);
             }
         } else {
-            return back()->withErrors(["Les nouveaux mot de passe ne correspondent pas."]);
+            return back()->withErrors([__("messages.updateConfirm")]);
         }
     }
 

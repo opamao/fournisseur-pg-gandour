@@ -84,7 +84,7 @@
 
         <div class="flex items-center space-x-4 py-5 lg:py-6">
             <h2 class="text-xl font-medium text-slate-800 dark:text-navy-50 lg:text-2xl">
-                Mes stocks
+                {{ __('messages.mesStcks') }}
             </h2>
         </div>
 
@@ -98,11 +98,11 @@
                         <div x-data="{ showModal: false }">
                             <a href="{{ url('export') }}"
                                 class="btn relative bg-secondary font-medium text-white hover:bg-secondary-focus focus:bg-secondary-focus active:bg-secondary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                Exporter
+                                {{ __('messages.export') }}
                             </a>
                             <button @click="showModal = true"
                                 class="btn relative bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                Importer
+                                {{ __('messages.import') }}
                             </button>
                             <template x-teleport="#x-teleport-target">
                                 <div class="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden px-4 py-6 sm:px-5"
@@ -121,7 +121,7 @@
                                         <div
                                             class="flex justify-between rounded-t-lg bg-slate-200 px-4 py-3 dark:bg-navy-800 sm:px-5">
                                             <h3 class="text-base font-medium text-slate-700 dark:text-navy-100">
-                                                Importation
+                                                {{ __('messages.import') }}
                                             </h3>
                                             <button @click="showModal = !showModal"
                                                 class="btn -mr-1.5 size-7 rounded-full p-0 hover:bg-slate-300/20 focus:bg-slate-300/20 active:bg-slate-300/25 dark:hover:bg-navy-300/20 dark:focus:bg-navy-300/20 dark:active:bg-navy-300/25">
@@ -138,8 +138,8 @@
                                             <div class="px-4 py-4 sm:px-5">
                                                 <div class="mt-4 space-y-4">
                                                     <label class="block">
-                                                        <span>Fichier</span><br>
-                                                        <small><em>Cliquez pour importer le fichier</em></small>
+                                                        <span>{{ __('messages.file') }}</span><br>
+                                                        <small><em>{{ __('messages.click') }}</em></small>
                                                         <input name="fichier" id="fichier" required
                                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
                                                             placeholder="Veuillez sélectionner le fichier" type="file"
@@ -165,13 +165,12 @@
                                                     </label> --}}
                                                     <div class="space-x-2 text-right">
                                                         <div id="loadingMessage" style="display: none;">
-                                                            <p style="color: #018ea9">Veuillez patienter, le fichier est en
-                                                                traitement...</p>
+                                                            <p style="color: #018ea9">{{ __('messages.warning') }}</p>
                                                         </div>
                                                         <div id="loadingButton">
                                                             <button type="submit"
                                                                 class="btn min-w-[7rem] rounded-full bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                                                Importer
+                                                                {{ __('messages.import') }}
                                                             </button>
                                                         </div>
                                                     </div>
@@ -196,7 +195,7 @@
                                         </th>
                                         <th style="background: #018ea9; color: white;"
                                             class="whitespace-nowrap bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-800 dark:bg-navy-800 dark:text-navy-100 lg:px-5">
-                                            Quantité
+                                            {{ __('messages.quantite') }}
                                         </th>
                                         <th style="background: #018ea9; color: white;"
                                             class="whitespace-nowrap bg-slate-200 px-4 py-3 font-semibold uppercase text-slate-800 dark:bg-navy-800 dark:text-navy-100 lg:px-5">
@@ -260,7 +259,7 @@
                                                                             class="flex justify-between rounded-t-lg bg-slate-200 px-4 py-3 dark:bg-navy-800 sm:px-5">
                                                                             <h3
                                                                                 class="text-base font-medium text-slate-700 dark:text-navy-100">
-                                                                                Modification
+                                                                                {{ __('messages.edit') }}
                                                                             </h3>
                                                                             <button
                                                                                 @click="showModal{{ $liste->id }} = !showModal{{ $liste->id }}"
@@ -293,17 +292,17 @@
                                                                                             type="text" />
                                                                                     </label>
                                                                                     <label class="block">
-                                                                                        <span>Quantité</span>
+                                                                                        <span>{{ __('messages.quantite') }}</span>
                                                                                         <input name="quantite" required
                                                                                             value="{{ $liste->quantite_initiale }}"
                                                                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
-                                                                                            placeholder="Saisir la quantité"
+                                                                                            placeholder="{{ __('messages.quantite') }}"
                                                                                             type="number" />
                                                                                     </label>
                                                                                     <div class="space-x-2 text-right">
                                                                                         <button type="submit"
                                                                                             class="btn min-w-[7rem] rounded-full bg-info font-medium text-white hover:bg-info-focus focus:bg-info-focus active:bg-info-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                                                                            Modifier
+                                                                                            {{ __('messages.edit') }}
                                                                                         </button>
                                                                                     </div>
                                                                                 </div>
@@ -344,7 +343,7 @@
                                                                             class="flex justify-between rounded-t-lg bg-slate-200 px-4 py-3 dark:bg-navy-800 sm:px-5">
                                                                             <h3
                                                                                 class="text-base font-medium text-slate-700 dark:text-navy-100">
-                                                                                Mettre a zéro
+                                                                                {{ __('messages.zero') }}
                                                                             </h3>
                                                                             <button
                                                                                 @click="showModalDelete{{ $liste->id }} = !showModalDelete{{ $liste->id }}"
@@ -368,12 +367,12 @@
                                                                             <div class="px-4 py-4 sm:px-5">
                                                                                 <div class="mt-4 space-y-4">
                                                                                     <label class="block">
-                                                                                        Vous allez mettre votre stock a zéro
+                                                                                        {{ __('messages.zerostock') }}
                                                                                     </label>
                                                                                     <div class="space-x-2 text-right">
                                                                                         <button type="submit"
                                                                                             class="btn min-w-[7rem] rounded-full bg-error font-medium text-white hover:bg-error-focus focus:bg-error-focus active:bg-error-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                                                                            Soumettre
+                                                                                            {{ __('messages.soumettre') }}
                                                                                         </button>
                                                                                     </div>
                                                                                 </div>

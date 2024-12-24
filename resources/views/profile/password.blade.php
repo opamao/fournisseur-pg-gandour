@@ -28,7 +28,7 @@
 
         <div class="flex items-center space-x-4 py-5 lg:py-6">
             <h2 class="text-xl font-medium text-slate-800 dark:text-navy-50 lg:text-2xl">
-                Modification de mot de passe
+                {{ __('messages.editPassword') }}
             </h2>
         </div>
 
@@ -42,27 +42,27 @@
                             <div class="px-4 py-4 sm:px-5">
                                 <div class="mt-4 space-y-4">
                                     <label class="block">
-                                        <span>Mot de passe actuel</span>
+                                        <span>{{ __('messages.current') }}</span>
                                         <input name="code" required
                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
-                                            placeholder="Saisir le mot de passe encours" type="password" />
+                                            placeholder="{{ __('messages.enterCurrent') }}" type="password" />
                                     </label>
                                     <label class="block">
-                                        <span>Nouveau mot de passe</span>
+                                        <span>{{ __('messages.new') }}</span>
                                         <input name="codenew" required
                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
-                                            placeholder="Saisir le nouveau mot de passe" type="password" />
+                                            placeholder="{{ __('messages.newCurrent') }}" type="password" />
                                     </label>
                                     <label class="block">
-                                        <span>Confirmer mot de passe</span>
+                                        <span>{{ __('messages.confirm') }}</span>
                                         <input name="codeconfirm" required
                                             class="form-input mt-1.5 w-full rounded-lg border border-slate-300 bg-transparent px-3 py-2 placeholder:text-slate-400/70 hover:border-slate-400 focus:border-primary dark:border-navy-450 dark:hover:border-navy-400 dark:focus:border-accent"
-                                            placeholder="Répeter le nouveau mot de passe" type="password" />
+                                            placeholder="{{ __('messages.confirmCurrent') }}" type="password" />
                                     </label>
                                     <div class="space-x-2 text-right">
                                         <button type="submit"
                                             class="btn min-w-[7rem] rounded-full bg-primary font-medium text-white hover:bg-primary-focus focus:bg-primary-focus active:bg-primary-focus/90 dark:bg-accent dark:hover:bg-accent-focus dark:focus:bg-accent-focus dark:active:bg-accent/90">
-                                            Modifier
+                                            {{ __('messages.edit') }}
                                         </button>
                                     </div>
                                 </div>

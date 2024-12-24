@@ -37,6 +37,7 @@
                             clip-rule="evenodd" />
                     </svg>
                 </button>
+                @include('components.language-switch')
             </div>
         </div>
     </div>

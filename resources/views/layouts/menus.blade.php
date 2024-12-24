@@ -72,10 +72,10 @@
                                     <div>
                                         <h2
                                             class="font-medium text-slate-700 transition-colors group-hover:text-primary group-focus:text-primary dark:text-navy-100 dark:group-hover:text-accent-light dark:group-focus:text-accent-light">
-                                            Mot de passe
+                                            {{ __('messages.password') }}
                                         </h2>
                                         <div class="text-xs text-slate-400 line-clamp-1 dark:text-navy-300">
-                                            Modifier mot de passe
+                                            {{ __('messages.editPassword') }}
                                         </div>
                                     </div>
                                 </a>
@@ -87,7 +87,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                         </svg>
-                                        <span>Se déconnecter</span>
+                                        <span>{{ __('messages.logout') }}</span>
                                     </a>
                                 </div>
                             </div>
@@ -104,7 +104,7 @@
             <!-- Sidebar Panel Header -->
             <div class="flex h-18 w-full items-center justify-between pl-4 pr-1">
                 <p class="text-base tracking-wider text-slate-800 dark:text-navy-100">
-                    Client NPG
+                    {{ __('messages.client') }} NPG
                 </p>
                 <button @click="$store.global.isSidebarExpanded = true"
                     class="btn size-7 rounded-full p-0 text-primary hover:bg-slate-300/20 focus:bg-slate-300/20 active:bg-slate-300/25 dark:text-accent-light/80 dark:hover:bg-navy-300/20 dark:focus:bg-navy-300/20 dark:active:bg-navy-300/25 xl:hidden">
@@ -123,7 +123,7 @@
                             :class="isActive ? 'font-medium text-primary dark:text-accent-light' :
                                 'text-slate-600 hover:text-slate-900 dark:text-navy-200 dark:hover:text-navy-50'"
                             class="flex py-2 text-xs+ tracking-wide outline-none transition-colors duration-300 ease-in-out">
-                            Tableau de bord
+                            {{ __('messages.dashboard') }}
                         </a>
                     </li>
                     <li>
