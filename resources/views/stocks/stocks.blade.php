@@ -43,12 +43,12 @@
                     success: function(response) {
                         // Masquer le message de chargement
                         $('#loadingMessage').hide();
-                        $('#loadingButton').show();
+                        // $('#loadingButton').show();
 
                         // Si succès, afficher un message de succès
                         alert(response.success);
-                        $('#formCreate')[0].reset(); // Réinitialiser le formulaire
                         location.reload(); // Rafraîchit la page
+                        $('#formCreate')[0].reset(); // Réinitialiser le formulaire
                     },
                     error: function(xhr) {
                         // Masquer le message de chargement

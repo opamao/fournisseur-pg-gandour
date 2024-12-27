@@ -94,7 +94,7 @@ return [
     'enterCodeUse' => "Le code est déjà utilisé. Veuillez essayer un autre!",
     'stockzero' => "Le stock a été remis zéro",
     'fileImportEx' => "Importer un fichier de type : xlsx, xls, ou csv dont la taille du fichier ne doit pas dépasser 2 Mo.",
-    'theline' => "La ligne ",
+    'theline' => "The line ",
     'stockVide' => " has an empty stock code.",
     'qteNeg' => " has a negative quantity.",
     'qteInv' => " has an invalid quantity.",

@@ -122,17 +122,17 @@ class StocksController extends Controller
                 // Construction du message d'erreur
                 $errorMessage = '';
                 if (count($invalidStocks) > 0) {
-                    $errorMessage .= implode("<br>", $invalidStocks) . "<br>";
+                    $errorMessage .= implode(" ", $invalidStocks);
                     // $errorMessage .= "Les codes de stock suivants ne sont pas valides : <br>" . implode("<br>", $invalidStocks) . "<br>";
                 }
 
                 if (count($invalidQuantities) > 0) {
-                    $errorMessage .= implode("<br>", $invalidQuantities) . "<br>";
+                    $errorMessage .= implode(" ", $invalidQuantities);
                     // $errorMessage .= "Les quantités suivantes ne sont pas valides (non numériques) : <br>" . implode("<br>", $invalidQuantities) . "<br>";
                 }
 
                 if (count($errors) > 0) {
-                    $errorMessage .= implode("<br>", $errors);
+                    $errorMessage .= implode(" ", $errors);
                 }
 
                 return response()->json(['errors' => $errorMessage], 422);
@@ -239,18 +239,26 @@ class StocksController extends Controller
 
         $roles = [
             'quantite' => 'required',
-            'code' => 'required|unique:stocks,code_stock,' . $user->id,
+            // 'code' => 'required|unique:stocks,code_stock,' . $user->id,
         ];
         $customMessages = [
             'quantite' => __("messages.enterquantite"),
-            'code.unique' => __("messages.enterCodeUse"),
+            // 'code.unique' => __("messages.enterCodeUse"),
         ];
         $request->validate($roles, $customMessages);
 
+        StockUpdate::create([
+            'client_id' => Auth::user()->id,
+            'code_stock' => $request->code,
+            'action' => 'updated',
+            'quantite_avant' => $user->quantite_initiale,
+            'quantite_apres' => $request->quantite,
+        ]);
+
         $user->quantite_initiale = $request->quantite;
-        if ($user->code_stock !== $request->code) {
-            $user->code_stock = $request->code;
-        }
+        // if ($user->code_stock !== $request->code) {
+        //     $user->code_stock = $request->code;
+        // }
 
         if ($user->save()) {
             return back()->with('succes', __("messages.update"));
@@ -287,7 +295,7 @@ class StocksController extends Controller
 
             $user = Clients::where('username', Auth::user()->username)->first();
 
-            if ($user && Hash::check($request->codenew, $user->password_client)) {
+            if ($user && !Hash::check($request->codenew, $user->password_client)) {
 
                 Clients::where('id', Auth::user()->id)
                     ->update([
